@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>果冻连连看</title>
+  <style>
+    :root {
+      --ink: #24324a;
+      --muted: #72809a;
+      --cream: #fffaf0;
+      --blue: #4f7cff;
+      --blue-dark: #3159d9;
+      --peach: #ff8d6b;
+      --green: #2cb994;
+      --shadow: 0 18px 55px rgba(55, 72, 112, .16);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      height: 100vh;
+      height: 100dvh;
+      min-height: 100vh;
+      min-height: 100dvh;
+      color: var(--ink);
+      font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 10% 12%, rgba(255, 196, 112, .28), transparent 24rem),
+        radial-gradient(circle at 88% 82%, rgba(104, 174, 255, .26), transparent 28rem),
+        linear-gradient(145deg, #fff9ee, #f2f7ff);
+      display: grid;
+      place-items: center;
+      padding: max(22px, env(safe-area-inset-top)) max(22px, env(safe-area-inset-right)) max(22px, env(safe-area-inset-bottom)) max(22px, env(safe-area-inset-left));
+      overflow: hidden;
+    }
+    .app { width: min(1080px, 100%); height: 100%; min-height: 0; display: flex; flex-direction: column; }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 18px;
+      margin-bottom: 16px;
+    }
+    .brand h1 { margin: 0; font-size: clamp(30px, 5vw, 54px); letter-spacing: -.05em; line-height: 1; }
+    .brand p { margin: 8px 0 0; color: var(--muted); font-size: 14px; }
+    .best { color: var(--muted); font-size: 14px; white-space: nowrap; }
+    .best strong { color: var(--peach); font-size: 20px; }
+    .panel {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      background: rgba(255, 255, 255, .78);
+      border: 1px solid rgba(255, 255, 255, .9);
+      border-radius: 28px;
+      padding: clamp(14px, 2.4vw, 24px);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+    .status {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr) auto;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .stat {
+      min-width: 0;
+      padding: 10px 14px;
+      background: #f7f9fe;
+      border-radius: 15px;
+    }
+    .stat span { display: block; color: var(--muted); font-size: 11px; }
+    .stat strong { display: block; margin-top: 2px; font-size: 20px; font-variant-numeric: tabular-nums; }
+    .controls { display: flex; gap: 8px; }
+    button {
+      font: inherit;
+      border: 0;
+      cursor: pointer;
+      transition: transform .16s ease, box-shadow .16s ease, opacity .16s ease;
+    }
+    button:hover { transform: translateY(-2px); }
+    button:active { transform: translateY(0) scale(.97); }
+    .action {
+      min-height: 44px;
+      padding: 0 16px;
+      border-radius: 14px;
+      color: #fff;
+      background: var(--blue);
+      box-shadow: 0 8px 18px rgba(79, 124, 255, .25);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .action.secondary { color: var(--ink); background: #edf1fa; box-shadow: none; }
+    .progress { height: 8px; margin: -4px 2px 16px; border-radius: 8px; background: #edf1f8; overflow: hidden; }
+    .progress i { display: block; height: 100%; width: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--green), #66d3ae); transition: width .35s linear, background .3s; }
+    .board-wrap { position: relative; flex: 1; min-height: 0; width: 100%; }
+    #board {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(var(--cols, 10), minmax(0, 1fr));
+      grid-template-rows: repeat(var(--rows, 8), minmax(0, 1fr));
+      gap: clamp(4px, .75vw, 8px);
+      width: 100%;
+      height: 100%;
+      touch-action: manipulation;
+    }
+    #pathCanvas { position: absolute; inset: 0; z-index: 3; width: 100%; height: 100%; pointer-events: none; }
+    .tile {
+      min-height: 0;
+      min-width: 0;
+      border: 1px solid rgba(118, 140, 181, .15);
+      border-radius: clamp(9px, 1.2vw, 15px);
+      background: linear-gradient(145deg, #fff, #f2f5fb);
+      box-shadow: 0 5px 11px rgba(54, 72, 110, .12);
+      display: grid;
+      place-items: center;
+      font-size: clamp(24px, min(6vh, 4.2vw), 42px);
+      line-height: 1;
+      user-select: none;
+    }
+    .tile:hover { box-shadow: 0 8px 18px rgba(54, 72, 110, .2); }
+    .tile.selected { outline: 3px solid var(--blue); background: #eaf0ff; transform: translateY(-3px); }
+    .tile.hint { animation: hint .65s ease-in-out infinite alternate; outline: 3px solid #ffad3d; }
+    .tile.removing { animation: vanish .28s ease forwards; pointer-events: none; }
+    .obstacle {
+      min-height: 0;
+      display: grid;
+      place-items: center;
+      border: 2px solid rgba(77, 85, 101, .18);
+      border-radius: clamp(9px, 1.2vw, 15px);
+      background: linear-gradient(145deg, #dfe4ec, #aeb8c7);
+      box-shadow: inset 0 3px 7px rgba(255,255,255,.55), 0 5px 11px rgba(54,72,110,.13);
+      font-size: clamp(24px, min(5.5vh, 4vw), 40px);
+      user-select: none;
+    }
+    .toast {
+      position: fixed;
+      left: 50%; bottom: 32px;
+      z-index: 10;
+      transform: translate(-50%, 16px);
+      padding: 11px 18px;
+      border-radius: 999px;
+      background: rgba(36, 50, 74, .92);
+      color: #fff;
+      font-size: 14px;
+      opacity: 0;
+      pointer-events: none;
+      transition: .22s ease;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .overlay {
+      position: fixed; inset: 0; z-index: 20;
+      display: none; place-items: center;
+      padding: 24px;
+      background: rgba(30, 42, 66, .35);
+      backdrop-filter: blur(7px);
+    }
+    .overlay.show { display: grid; }
+    .dialog { width: min(420px, 100%); text-align: center; background: #fff; border-radius: 28px; padding: 34px; box-shadow: var(--shadow); animation: pop .28s ease; }
+    .dialog .emoji { font-size: 62px; }
+    .dialog h2 { margin: 12px 0 6px; font-size: 30px; }
+    .dialog p { color: var(--muted); margin: 0 0 22px; line-height: 1.8; }
+    .dialog .action { width: 100%; }
+    .levels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin: 0 0 18px; }
+    .level-btn {
+      padding: 12px 6px;
+      border: 2px solid #e7ebf4;
+      border-radius: 14px;
+      color: var(--ink);
+      background: #f7f9fe;
+      font-weight: 700;
+    }
+    .level-btn.selected { border-color: var(--blue); color: var(--blue-dark); background: #eaf0ff; box-shadow: 0 7px 16px rgba(79, 124, 255, .16); }
+    @keyframes pop { from { opacity: 0; transform: scale(.82); } }
+    @keyframes vanish { to { opacity: 0; transform: scale(.35) rotate(8deg); } }
+    @keyframes hint { to { transform: translateY(-4px) scale(1.04); box-shadow: 0 10px 22px rgba(255, 173, 61, .35); } }
+    @media (max-width: 760px) {
+      body {
+        padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+        align-items: start;
+      }
+      header { align-items: center; }
+      .brand h1 { font-size: clamp(28px, 9vw, 40px); }
+      .brand p { display: none; }
+      .panel { border-radius: 20px; padding: 11px; }
+      .status { grid-template-columns: repeat(4, 1fr); }
+      .controls { grid-column: 1 / -1; }
+      .action { flex: 1; min-height: 44px; padding: 0 10px; font-size: 14px; }
+      .stat { padding: 7px 9px; }
+      .stat strong { font-size: 16px; }
+      #board { gap: clamp(4px, 1.3vw, 7px); }
+      .tile { border-radius: 11px; font-size: clamp(26px, min(6vh, 9.5vw), 44px); }
+    }
+    @media (max-width: 420px) {
+      header { margin-bottom: 10px; }
+      .best { font-size: 12px; }
+      .best strong { font-size: 17px; }
+      .status { gap: 6px; margin-bottom: 12px; }
+      .stat { padding: 6px; text-align: center; border-radius: 11px; }
+      .stat span { font-size: 10px; }
+      .stat strong { font-size: 15px; }
+      .controls { gap: 6px; }
+      .action { padding: 0 6px; font-size: 13px; }
+      .progress { margin-bottom: 11px; }
+    }
+    @media (max-height: 650px) {
+      header { margin-bottom: 7px; }
+      .brand h1 { font-size: 27px; }
+      .brand p { display: none; }
+      .panel { padding-top: 8px; padding-bottom: 8px; }
+      .status { margin-bottom: 8px; }
+      .progress { height: 6px; margin-bottom: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div class="brand"><h1>果冻连连看</h1><p>连接相同图案 · 路线最多转弯两次</p></div>
+      <div class="best">最高分 <strong id="best">0</strong></div>
+    </header>
+    <section class="panel">
+      <div class="status">
+        <div class="stat"><span>得分</span><strong id="score">0</strong></div>
+        <div class="stat"><span>剩余</span><strong id="left">80</strong></div>
+        <div class="stat"><span>时间</span><strong id="time">03:00</strong></div>
+        <div class="stat"><span>连击</span><strong id="combo">×0</strong></div>
+        <div class="controls">
+          <button class="action secondary" id="hintBtn" type="button">提示 3</button>
+          <button class="action secondary" id="shuffleBtn" type="button">洗牌 3</button>
+          <button class="action" id="restartBtn" type="button">新游戏</button>
+        </div>
+      </div>
+      <div class="progress"><i id="timeBar"></i></div>
+      <div class="board-wrap">
+        <canvas id="pathCanvas"></canvas>
+        <div id="board" aria-label="连连看棋盘"></div>
+      </div>
+    </section>
+  </main>
+  <div class="toast" id="toast" role="status"></div>
+  <div class="overlay" id="overlay">
+    <div class="dialog">
+      <div class="emoji" id="resultEmoji">🎉</div>
+      <h2 id="resultTitle">全部消除！</h2>
+      <p id="resultText"></p>
+      <div class="levels" id="levels" aria-label="选择难度">
+        <button class="level-btn" type="button" data-level="easy">轻松</button>
+        <button class="level-btn selected" type="button" data-level="normal">标准</button>
+        <button class="level-btn" type="button" data-level="hard">挑战</button>
+      </div>
+      <button class="action" id="againBtn" type="button">开始游戏</button>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const OBSTACLE = '__ROCK__';
+      let ROWS = 8, COLS = 8, totalTime = 180, obstacleCount = 4, difficulty = 'normal';
+      const ICONS = ['🍓','🍊','🍋','🍉','🍇','🍒','🥝','🍑','🍍','🥑','🍄','🌽','🥕','🫐','🍏','🥥','🐳','🦊','🐼','🐸'];
+      const boardEl = document.getElementById('board');
+      const canvas = document.getElementById('pathCanvas');
+      const ctx = canvas.getContext('2d');
+      const $ = id => document.getElementById(id);
+      let grid, selected, score, combo, lastMatchAt, remainingTime, hints, shuffles, timer, locked, gameOver;
+
+      function configureBoardSize() {
+        const width = Math.min(window.innerWidth, document.documentElement.clientWidth || window.innerWidth);
+        if (difficulty === 'easy') {
+          ROWS = 6; COLS = 6; totalTime = 150; obstacleCount = 0;
+        } else if (difficulty === 'hard') {
+          if (width <= 600) { ROWS = 10; COLS = 6; }
+          else if (width <= 900) { ROWS = 10; COLS = 8; }
+          else { ROWS = 8; COLS = 10; }
+          totalTime = 210; obstacleCount = 8;
+        } else {
+          if (width <= 600) { ROWS = 8; COLS = 6; }
+          else { ROWS = 8; COLS = 8; }
+          totalTime = 180; obstacleCount = 4;
+        }
+        boardEl.style.setProperty('--cols', COLS);
+        boardEl.style.setProperty('--rows', ROWS);
+      }
+
+      function shuffled(a) {
+        a = [...a];
+        for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+        return a;
+      }
+
+      function makeRockGroups(count) {
+        const rocks = new Set();
+        if (!count) return rocks;
+        const minR = ROWS > 4 ? 2 : 1, maxR = ROWS > 4 ? ROWS - 1 : ROWS;
+        const minC = COLS > 4 ? 2 : 1, maxC = COLS > 4 ? COLS - 1 : COLS;
+        const key = (r, c) => (r - 1) * COLS + c - 1;
+        const dirs = [[-1,0],[0,1],[1,0],[0,-1]];
+
+        function growGroup(size, bounds, startR, startC) {
+          const group = new Set(), cells = [{r:startR, c:startC}];
+          group.add(key(startR, startC));
+          while (group.size < size) {
+            const candidates = [];
+            for (const cell of cells) for (const [dr, dc] of dirs) {
+              const r = cell.r + dr, c = cell.c + dc, id = key(r, c);
+              if (r >= bounds.minR && r <= bounds.maxR && c >= bounds.minC && c <= bounds.maxC && !rocks.has(id) && !group.has(id)) candidates.push({r,c,id});
+            }
+            const next = candidates[Math.floor(Math.random() * candidates.length)];
+            if (!next) break;
+            group.add(next.id); cells.push({r:next.r, c:next.c});
+          }
+          group.forEach(id => rocks.add(id));
+        }
+
+        if (count <= 4) {
+          growGroup(count, {minR,maxR,minC,maxC}, Math.floor((minR + maxR) / 2), Math.floor((minC + maxC) / 2));
+        } else {
+          const topMax = Math.max(minR, Math.floor(ROWS / 2) - 1);
+          const bottomMin = Math.min(maxR, Math.ceil(ROWS / 2) + 1);
+          growGroup(4, {minR, maxR:topMax, minC, maxC}, Math.floor((minR + topMax) / 2), Math.max(minC, Math.floor(COLS * .35)));
+          growGroup(count - 4, {minR:bottomMin, maxR, minC, maxC}, Math.floor((bottomMin + maxR) / 2), Math.min(maxC, Math.ceil(COLS * .65)));
+        }
+        return rocks;
+      }
+
+      function makeGrid() {
+        const values = [];
+        const playableCells = ROWS * COLS - obstacleCount;
+        for (let i = 0; i < playableCells / 2; i++) values.push(ICONS[i % ICONS.length], ICONS[i % ICONS.length]);
+        const mixed = shuffled(values);
+        grid = Array.from({ length: ROWS + 2 }, () => Array(COLS + 2).fill(null));
+        const rocks = makeRockGroups(obstacleCount);
+        for (let r = 1, k = 0; r <= ROWS; r++) for (let c = 1; c <= COLS; c++) {
+          const index = (r - 1) * COLS + c - 1;
+          grid[r][c] = rocks.has(index) ? OBSTACLE : mixed[k++];
+        }
+        ensureMove();
+      }
+
+      function render() {
+        boardEl.innerHTML = '';
+        for (let r = 1; r <= ROWS; r++) for (let c = 1; c <= COLS; c++) {
+          const value = grid[r][c];
+          if (!value) { const gap = document.createElement('div'); gap.className = 'empty'; boardEl.appendChild(gap); continue; }
+          if (value === OBSTACLE) {
+            const rock = document.createElement('div'); rock.className = 'obstacle'; rock.textContent = '🪨';
+            rock.setAttribute('role', 'img'); rock.setAttribute('aria-label', '岩石障碍'); boardEl.appendChild(rock); continue;
+          }
+          const b = document.createElement('button');
+          b.type = 'button'; b.className = 'tile'; b.textContent = value;
+          b.dataset.r = r; b.dataset.c = c; b.setAttribute('aria-label', value);
+          b.addEventListener('click', () => choose(r, c, b));
+          boardEl.appendChild(b);
+        }
+        updateStats();
+      }
+
+      function pathBetween(a, b) {
+        if (!a || !b || grid[a.r][a.c] === OBSTACLE || grid[b.r][b.c] === OBSTACLE || grid[a.r][a.c] !== grid[b.r][b.c] || (a.r === b.r && a.c === b.c)) return null;
+        const dirs = [[-1,0],[0,1],[1,0],[0,-1]];
+        const queue = [], seen = new Map();
+        for (let d = 0; d < 4; d++) queue.push({ r:a.r, c:a.c, d, turns:0, path:[a] });
+        while (queue.length) {
+          const s = queue.shift(), dr = dirs[s.d][0], dc = dirs[s.d][1];
+          const nr = s.r + dr, nc = s.c + dc;
+          if (nr < 0 || nr > ROWS + 1 || nc < 0 || nc > COLS + 1) continue;
+          if (grid[nr][nc] && !(nr === b.r && nc === b.c)) continue;
+          const key = nr + ',' + nc + ',' + s.d;
+          if ((seen.get(key) ?? 3) <= s.turns) continue;
+          seen.set(key, s.turns);
+          const nextPath = [...s.path];
+          if (nextPath.length === 1 || s.d !== (nextPath[nextPath.length - 1].d ?? s.d)) nextPath.push({ r:s.r, c:s.c, d:s.d });
+          if (nr === b.r && nc === b.c) return [...nextPath, b];
+          queue.push({ r:nr, c:nc, d:s.d, turns:s.turns, path:nextPath });
+          if (s.turns < 2) for (let nd = 0; nd < 4; nd++) if (nd !== s.d) queue.push({ r:nr, c:nc, d:nd, turns:s.turns + 1, path:[...nextPath, {r:nr,c:nc,d:nd}] });
+        }
+        return null;
+      }
+
+      function findPair() {
+        const cells = [];
+        for (let r = 1; r <= ROWS; r++) for (let c = 1; c <= COLS; c++) if (grid[r][c] && grid[r][c] !== OBSTACLE) cells.push({r,c});
+        for (let i = 0; i < cells.length; i++) for (let j = i + 1; j < cells.length; j++) {
+          if (grid[cells[i].r][cells[i].c] === grid[cells[j].r][cells[j].c]) {
+            const path = pathBetween(cells[i], cells[j]); if (path) return [cells[i], cells[j], path];
+          }
+        }
+        return null;
+      }
+
+      function ensureMove() {
+        let guard = 0;
+        while (!findPair() && guard++ < 100) shuffleRemaining(false);
+      }
+
+      function choose(r, c, el) {
+        if (locked || gameOver) return;
+        clearHints();
+        if (selected && selected.r === r && selected.c === c) { el.classList.remove('selected'); selected = null; return; }
+        if (!selected) { selected = {r,c,el}; el.classList.add('selected'); return; }
+        const first = selected, path = pathBetween(first, {r,c});
+        if (!path) {
+          first.el.classList.remove('selected'); selected = {r,c,el}; el.classList.add('selected');
+          combo = 0; updateStats(); return;
+        }
+        locked = true; el.classList.add('selected'); drawPath(path);
+        const now = Date.now(); combo = now - lastMatchAt < 3000 ? combo + 1 : 1; lastMatchAt = now;
+        score += 100 + Math.min(combo - 1, 9) * 20 + Math.ceil(remainingTime / 30) * 5;
+        first.el.classList.add('removing'); el.classList.add('removing');
+        setTimeout(() => {
+          grid[first.r][first.c] = null; grid[r][c] = null; selected = null; locked = false; clearCanvas();
+          clearCell(first.el); clearCell(el); updateStats();
+          if (countLeft() === 0) finish(true);
+          else if (!findPair()) { shuffleRemaining(false); render(); toast('没有可连接的对子，已自动洗牌'); }
+        }, 300);
+      }
+
+      function clearCell(el) {
+        const gap = document.createElement('div'); gap.className = 'empty'; el.replaceWith(gap);
+      }
+
+      function drawPath(path) {
+        resizeCanvas();
+        const boardRect = boardEl.getBoundingClientRect();
+        const tile = boardEl.querySelector('.tile'); if (!tile) return;
+        const rect = tile.getBoundingClientRect(), gapX = (boardRect.width - rect.width * COLS) / (COLS - 1);
+        const gapY = (boardRect.height - rect.height * ROWS) / (ROWS - 1);
+        const pos = p => ({
+          x: p.c === 0 ? 3 : p.c === COLS + 1 ? boardRect.width - 3 : (p.c - 1) * (rect.width + gapX) + rect.width / 2,
+          y: p.r === 0 ? 3 : p.r === ROWS + 1 ? boardRect.height - 3 : (p.r - 1) * (rect.height + gapY) + rect.height / 2
+        });
+        ctx.clearRect(0,0,canvas.width,canvas.height); ctx.beginPath();
+        path.map(pos).forEach((p,i) => i ? ctx.lineTo(p.x * devicePixelRatio, p.y * devicePixelRatio) : ctx.moveTo(p.x * devicePixelRatio,p.y * devicePixelRatio));
+        ctx.strokeStyle = '#4f7cff'; ctx.lineWidth = 5 * devicePixelRatio; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.stroke();
+      }
+      function resizeCanvas() { const r = boardEl.getBoundingClientRect(); canvas.width = r.width * devicePixelRatio; canvas.height = r.height * devicePixelRatio; }
+      function clearCanvas() { ctx.clearRect(0,0,canvas.width,canvas.height); }
+      function countLeft() { let n=0; for(let r=1;r<=ROWS;r++) for(let c=1;c<=COLS;c++) if(grid[r][c] && grid[r][c] !== OBSTACLE) n++; return n; }
+
+      function shuffleRemaining(cost = true) {
+        if (cost && (shuffles <= 0 || gameOver)) return;
+        if (cost) { shuffles--; score = Math.max(0, score - 50); }
+        const vals = [];
+        for(let r=1;r<=ROWS;r++) for(let c=1;c<=COLS;c++) if(grid[r][c] && grid[r][c] !== OBSTACLE) vals.push(grid[r][c]);
+        const mix = shuffled(vals); let k=0;
+        for(let r=1;r<=ROWS;r++) for(let c=1;c<=COLS;c++) if(grid[r][c] && grid[r][c] !== OBSTACLE) grid[r][c]=mix[k++];
+        selected = null; combo = 0; if (cost) { ensureMove(); render(); toast('棋盘已重新排列'); }
+      }
+
+      function showHint() {
+        if (hints <= 0 || gameOver) return;
+        const pair = findPair(); if (!pair) return;
+        hints--; score = Math.max(0, score - 30); clearHints();
+        pair.slice(0,2).forEach(p => tileAt(p).classList.add('hint'));
+        updateStats(); setTimeout(clearHints, 1800);
+      }
+      function tileAt(p) { return boardEl.querySelector(`[data-r="${p.r}"][data-c="${p.c}"]`); }
+      function clearHints() { boardEl.querySelectorAll('.hint').forEach(x => x.classList.remove('hint')); }
+
+      function updateStats() {
+        $('score').textContent = score; $('left').textContent = countLeft(); $('combo').textContent = '×' + combo;
+        $('hintBtn').textContent = '提示 ' + hints; $('shuffleBtn').textContent = '洗牌 ' + shuffles;
+        $('hintBtn').disabled = hints <= 0; $('shuffleBtn').disabled = shuffles <= 0;
+        const m = Math.floor(remainingTime/60), s = remainingTime%60; $('time').textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+        $('timeBar').style.width = (remainingTime / totalTime * 100) + '%';
+        $('timeBar').style.background = remainingTime < 30 ? 'linear-gradient(90deg,#ff6d6d,#ff9d76)' : '';
+        $('best').textContent = localStorage.getItem('jellyLinkBest') || 0;
+      }
+
+      function start() {
+        clearInterval(timer); configureBoardSize();
+        score=0; combo=0; lastMatchAt=0; remainingTime=totalTime;
+        hints = difficulty === 'easy' ? 5 : difficulty === 'hard' ? 2 : 3;
+        shuffles = difficulty === 'easy' ? 5 : difficulty === 'hard' ? 2 : 3;
+        selected=null; locked=false; gameOver=false;
+        $('overlay').classList.remove('show'); makeGrid(); render();
+        timer = setInterval(() => { remainingTime--; updateStats(); if (remainingTime <= 0) finish(false); }, 1000);
+      }
+
+      function showMenu() {
+        clearInterval(timer); gameOver = true; locked = false; selected = null;
+        $('resultEmoji').textContent = '🎮'; $('resultTitle').textContent = '选择难度';
+        $('resultText').textContent = '选好难度后，点击开始游戏才会计时。';
+        $('againBtn').textContent = '开始游戏'; $('overlay').classList.add('show');
+      }
+
+      function finish(win) {
+        gameOver=true; clearInterval(timer);
+        const best = Math.max(score, Number(localStorage.getItem('jellyLinkBest') || 0)); localStorage.setItem('jellyLinkBest', best); updateStats();
+        $('resultEmoji').textContent = win ? '🎉' : '⏰'; $('resultTitle').textContent = win ? '全部消除！' : '时间到！';
+        $('resultText').innerHTML = `本局得分 <strong>${score}</strong><br>${score === best && score > 0 ? '恭喜刷新最高分！' : '再试一次，冲击更高分吧。'}`;
+        $('againBtn').textContent = '再来一局';
+        $('overlay').classList.add('show');
+      }
+      let toastTimer;
+      function toast(msg) { clearTimeout(toastTimer); $('toast').textContent=msg; $('toast').classList.add('show'); toastTimer=setTimeout(()=>$('toast').classList.remove('show'),1800); }
+
+      $('hintBtn').addEventListener('click', showHint);
+      $('shuffleBtn').addEventListener('click', () => shuffleRemaining(true));
+      $('restartBtn').addEventListener('click', showMenu);
+      $('againBtn').addEventListener('click', start);
+      document.querySelectorAll('.level-btn').forEach(btn => btn.addEventListener('click', () => {
+        difficulty = btn.dataset.level;
+        document.querySelectorAll('.level-btn').forEach(x => x.classList.toggle('selected', x === btn));
+      }));
+      window.addEventListener('resize', clearCanvas);
+      showMenu();
+    })();
+  </script>
+</body>
+</html>
