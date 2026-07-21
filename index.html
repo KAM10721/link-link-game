@@ -6,61 +6,125 @@
   <title>果冻连连看</title>
   <style>
     :root {
-      --ink: #24324a;
-      --muted: #72809a;
-      --cream: #fffaf0;
-      --blue: #4f7cff;
-      --blue-dark: #3159d9;
-      --peach: #ff8d6b;
-      --green: #2cb994;
-      --shadow: 0 18px 55px rgba(55, 72, 112, .16);
+      color-scheme: light;
+      --ink: #1d1d1f;
+      --muted: #6e6e73;
+      --blue: #007aff;
+      --blue-dark: #0066d6;
+      --orange: #ff7a45;
+      --green: #30b77a;
+      --surface: rgba(255, 255, 255, .72);
+      --surface-solid: #f4f5f7;
+      --hairline: rgba(60, 60, 67, .12);
+      --ease-out: cubic-bezier(.23, 1, .32, 1);
+      --ease-move: cubic-bezier(.77, 0, .175, 1);
+      --shadow: 0 24px 70px rgba(25, 35, 52, .14), 0 2px 10px rgba(25, 35, 52, .06);
     }
     * { box-sizing: border-box; }
+    html { background: #eef4fb; }
     body {
+      position: relative;
+      isolation: isolate;
       margin: 0;
       height: 100vh;
       height: 100dvh;
       min-height: 100vh;
       min-height: 100dvh;
       color: var(--ink);
-      font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
-      background:
-        radial-gradient(circle at 10% 12%, rgba(255, 196, 112, .28), transparent 24rem),
-        radial-gradient(circle at 88% 82%, rgba(104, 174, 255, .26), transparent 28rem),
-        linear-gradient(145deg, #fff9ee, #f2f7ff);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      font-optical-sizing: auto;
+      -webkit-font-smoothing: antialiased;
+      background: linear-gradient(145deg, #fff8ec 0%, #f6f8fc 45%, #e9f3ff 100%);
       display: grid;
       place-items: center;
       padding: max(22px, env(safe-area-inset-top)) max(22px, env(safe-area-inset-right)) max(22px, env(safe-area-inset-bottom)) max(22px, env(safe-area-inset-left));
       overflow: hidden;
+      overscroll-behavior: none;
+      -webkit-tap-highlight-color: transparent;
     }
-    .app { width: min(1080px, 100%); height: 100%; min-height: 0; display: flex; flex-direction: column; }
+    body::before, body::after {
+      content: "";
+      position: fixed;
+      z-index: 0;
+      border-radius: 50%;
+      pointer-events: none;
+      will-change: transform;
+    }
+    body::before {
+      width: 48vmax;
+      height: 48vmax;
+      left: -18vmax;
+      top: -19vmax;
+      background:
+        radial-gradient(circle at 60% 56%, rgba(255,151,67,.92), rgba(255,205,127,.44) 38%, transparent 72%);
+      box-shadow: 22vmax 15vmax 14vmax rgba(255,216,137,.18);
+      filter: blur(34px) saturate(142%);
+      opacity: .82;
+      transform: translate3d(-3vmax, -2vmax, 0) scale(.94);
+      animation: ambientWarmDrift 8.6s cubic-bezier(.45,0,.25,1) infinite alternate;
+    }
+    body::after {
+      width: 58vmax;
+      height: 58vmax;
+      right: -24vmax;
+      bottom: -26vmax;
+      background:
+        radial-gradient(circle at 42% 40%, rgba(41,126,255,.82), rgba(88,184,255,.34) 42%, transparent 70%),
+        radial-gradient(circle at 72% 25%, rgba(166,92,255,.34), transparent 46%);
+      box-shadow: -18vmax -13vmax 16vmax rgba(67,213,208,.16);
+      filter: blur(40px) saturate(150%);
+      opacity: .78;
+      transform: translate3d(4vmax, 4vmax, 0) scale(1.02);
+      animation: ambientCoolDrift 10.8s cubic-bezier(.45,0,.25,1) infinite alternate;
+    }
+    @keyframes ambientWarmDrift {
+      45% { transform: translate3d(20vmax, 8vmax, 0) scale(1.12) rotate(7deg); }
+      100% { transform: translate3d(10vmax, 23vmax, 0) scale(.98) rotate(-5deg); }
+    }
+    @keyframes ambientCoolDrift {
+      42% { transform: translate3d(-22vmax, -8vmax, 0) scale(1.12) rotate(-8deg); }
+      100% { transform: translate3d(-10vmax, -24vmax, 0) scale(1.01) rotate(6deg); }
+    }
+    .app { position: relative; z-index: 1; width: min(1080px, 100%); height: 100%; min-height: 0; display: flex; flex-direction: column; }
     header {
       display: flex;
       justify-content: space-between;
       align-items: end;
       gap: 18px;
       margin-bottom: 16px;
+      padding: 0 4px;
     }
-    .brand h1 { margin: 0; font-size: clamp(30px, 5vw, 54px); letter-spacing: -.05em; line-height: 1; }
-    .brand p { margin: 8px 0 0; color: var(--muted); font-size: 14px; }
-    .best { color: var(--muted); font-size: 14px; white-space: nowrap; }
-    .best strong { color: var(--peach); font-size: 20px; }
+    .brand h1 { margin: 0; font-size: clamp(30px, 5vw, 52px); font-weight: 760; letter-spacing: -.045em; line-height: .98; }
+    .brand p { margin: 9px 0 0; color: var(--muted); font-size: 14px; letter-spacing: .01em; }
+    .best { color: var(--muted); font-size: 13px; font-weight: 560; white-space: nowrap; padding: 8px 12px; border-radius: 999px; }
+    .best strong { color: var(--orange); font-size: 21px; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
     .panel {
       position: relative;
       flex: 1;
       min-height: 0;
       display: flex;
       flex-direction: column;
-      background: rgba(255, 255, 255, .78);
-      border: 1px solid rgba(255, 255, 255, .9);
-      border-radius: 28px;
+      background: rgba(248, 249, 252, .91);
+      border: 1px solid rgba(255, 255, 255, .88);
+      border-radius: 30px;
       padding: clamp(14px, 2.4vw, 24px);
       box-shadow: var(--shadow);
-      backdrop-filter: blur(14px);
+      backdrop-filter: blur(12px) saturate(135%);
+      -webkit-backdrop-filter: blur(12px) saturate(135%);
+      isolation: isolate;
+    }
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      border-radius: inherit;
+      background: linear-gradient(145deg, rgba(255,255,255,.42), transparent 36%);
+      pointer-events: none;
     }
     .status {
       display: grid;
-      grid-template-columns: repeat(4, 1fr) auto;
+      grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
       align-items: center;
       gap: 10px;
       margin-bottom: 16px;
@@ -68,34 +132,59 @@
     .stat {
       min-width: 0;
       padding: 10px 14px;
-      background: #f7f9fe;
-      border-radius: 15px;
+      background: var(--surface-solid);
+      border: 1px solid rgba(255,255,255,.78);
+      border-radius: 16px;
     }
-    .stat span { display: block; color: var(--muted); font-size: 11px; }
-    .stat strong { display: block; margin-top: 2px; font-size: 20px; font-variant-numeric: tabular-nums; }
-    .controls { display: flex; gap: 8px; }
+    .stat span { display: block; color: var(--muted); font-size: 11px; font-weight: 600; letter-spacing: .035em; }
+    .stat strong { display: block; margin-top: 2px; font-size: 20px; font-weight: 720; letter-spacing: -.025em; font-variant-numeric: tabular-nums; }
+    .controls { display: flex; gap: 4px; padding: 4px; border-radius: 18px; }
     button {
       font: inherit;
       border: 0;
       cursor: pointer;
-      transition: transform .16s ease, box-shadow .16s ease, opacity .16s ease;
+      touch-action: manipulation;
+      user-select: none;
+      transition: transform 140ms var(--ease-out), box-shadow 180ms ease, background-color 180ms ease, border-color 180ms ease, color 180ms ease, opacity 160ms ease;
     }
-    button:hover { transform: translateY(-2px); }
-    button:active { transform: translateY(0) scale(.97); }
+    button:focus-visible { outline: 3px solid rgba(0, 122, 255, .34); outline-offset: 2px; }
+    button:active { transform: scale(.97); transition-duration: 90ms; }
+    button:disabled { cursor: default; opacity: .4; box-shadow: none; }
     .action {
       min-height: 44px;
-      padding: 0 16px;
-      border-radius: 14px;
+      padding: 0 17px;
+      border-radius: var(--liquid-radius, 14px);
       color: #fff;
       background: var(--blue);
-      box-shadow: 0 8px 18px rgba(79, 124, 255, .25);
-      font-weight: 700;
+      box-shadow: 0 8px 20px rgba(0, 122, 255, .24);
+      font-weight: 680;
       white-space: nowrap;
     }
-    .action.secondary { color: var(--ink); background: #edf1fa; box-shadow: none; }
-    .progress { height: 8px; margin: -4px 2px 16px; border-radius: 8px; background: #edf1f8; overflow: hidden; }
-    .progress i { display: block; height: 100%; width: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--green), #66d3ae); transition: width .35s linear, background .3s; }
-    .board-wrap { position: relative; flex: 1; min-height: 0; width: 100%; }
+    .action.secondary { color: var(--ink); background: #eef0f4; box-shadow: inset 0 0 0 1px rgba(60,60,67,.04); }
+    .controls .action.secondary { background: transparent; box-shadow: none; }
+    .progress { height: 7px; margin: -4px 2px 16px; border-radius: 99px; background: rgba(118,118,128,.14); overflow: hidden; }
+    .progress i { display: block; height: 100%; width: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--green), #62d39f); transition: width .35s linear, background-color .2s ease; }
+    .board-wrap { position: relative; flex: 1; min-height: 0; width: 100%; isolation: isolate; }
+    .board-wrap::before {
+      content: "";
+      position: absolute;
+      inset: -3%;
+      z-index: 0;
+      border-radius: 24px;
+      background:
+        radial-gradient(ellipse 42% 34% at 14% 18%, rgba(255,158,88,.30), transparent 72%),
+        radial-gradient(ellipse 46% 38% at 86% 26%, rgba(102,173,255,.28), transparent 74%),
+        radial-gradient(ellipse 50% 34% at 42% 82%, rgba(87,211,187,.20), transparent 72%),
+        linear-gradient(142deg, rgba(255,255,255,.08), rgba(92,150,214,.12));
+      filter: blur(22px) saturate(145%);
+      opacity: .86;
+      transform: translate3d(-1.5%, -1%, 0) scale(1.03);
+      animation: boardRefractionField 14s cubic-bezier(.45,0,.25,1) infinite alternate;
+      pointer-events: none;
+    }
+    @keyframes boardRefractionField {
+      to { transform: translate3d(1.5%, 1%, 0) scale(1.055); filter: blur(25px) saturate(158%); }
+    }
     #board {
       position: relative;
       z-index: 1;
@@ -109,97 +198,308 @@
     }
     #pathCanvas { position: absolute; inset: 0; z-index: 3; width: 100%; height: 100%; pointer-events: none; }
     .tile {
+      --glass-x: 50%;
+      --glass-y: 18%;
+      position: relative;
+      isolation: isolate;
       min-height: 0;
       min-width: 0;
-      border: 1px solid rgba(118, 140, 181, .15);
-      border-radius: clamp(9px, 1.2vw, 15px);
-      background: linear-gradient(145deg, #fff, #f2f5fb);
-      box-shadow: 0 5px 11px rgba(54, 72, 110, .12);
+      margin: 0;
+      padding: 0;
+      border: 1px solid rgba(255,255,255,.50);
+      border-radius: clamp(10px, 1.2vw, 16px);
+      appearance: none;
+      -webkit-appearance: none;
+      background: linear-gradient(145deg, rgba(255,255,255,.23), rgba(255,255,255,.075) 48%, rgba(222,239,255,.12));
+      -webkit-backdrop-filter: var(--tile-refraction, blur(10px) saturate(165%) brightness(1.04));
+      backdrop-filter: var(--tile-refraction, blur(10px) saturate(165%) brightness(1.04));
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.76),
+        inset 1px 0 0 rgba(255,255,255,.28),
+        inset 0 -1px 0 rgba(57,88,121,.12),
+        0 5px 13px rgba(42,67,94,.105);
       display: grid;
       place-items: center;
       font-size: clamp(24px, min(6vh, 4.2vw), 42px);
       line-height: 1;
       user-select: none;
+      -webkit-user-select: none;
+      overflow: hidden;
+      transform: translateZ(0);
+      will-change: transform, opacity;
+      transition: transform 150ms var(--ease-out), box-shadow 180ms ease, background-color 180ms ease, border-color 180ms ease, opacity 160ms ease, filter 160ms ease;
     }
-    .tile:hover { box-shadow: 0 8px 18px rgba(54, 72, 110, .2); }
-    .tile.selected { outline: 3px solid var(--blue); background: #eaf0ff; transform: translateY(-3px); }
-    .tile.hint { animation: hint .65s ease-in-out infinite alternate; outline: 3px solid #ffad3d; }
-    .tile.removing { animation: vanish .28s ease forwards; pointer-events: none; }
+    .tile::before {
+      content: "";
+      position: absolute;
+      inset: 1px;
+      z-index: 1;
+      border-radius: inherit;
+      background:
+        radial-gradient(ellipse 88% 48% at var(--glass-x) var(--glass-y), rgba(255,255,255,.58), rgba(255,255,255,.10) 38%, transparent 72%),
+        linear-gradient(118deg, rgba(255,255,255,.16), transparent 38%, rgba(99,170,231,.08));
+      background-blend-mode: screen;
+      mix-blend-mode: screen;
+      opacity: .70;
+      transition: opacity 180ms ease;
+      pointer-events: none;
+    }
+    .tile::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(138deg, rgba(255,255,255,.94), rgba(255,255,255,.18) 34%, rgba(69,129,181,.22) 72%, rgba(255,255,255,.62));
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: .88;
+      pointer-events: none;
+    }
+    .fruit-glass { position: absolute; inset: 0; z-index: 3; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; background: none; border: 0; box-shadow: none; filter: saturate(1.10) contrast(1.025) drop-shadow(0 2px 2px rgba(39,60,88,.13)); transform: translateZ(0); transform-origin: center; pointer-events: none; transition: transform 160ms var(--ease-out), filter 160ms ease; }
+    .fruit-glass::before, .fruit-glass::after { display: none; }
+    .fruit-glyph { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; width: 1em; height: 1em; margin: 0; padding: 0; line-height: 1; text-align: center; transform: translate3d(0, -.025em, 0); }
+    .tile:active { transform: scale(.94); }
+    .tile.selected { border-color: rgba(0,122,255,.68); background: linear-gradient(145deg, rgba(255,255,255,.24), rgba(0,122,255,.12)); box-shadow: inset 0 1px 0 rgba(255,255,255,.78), 0 0 0 2px rgba(0,122,255,.20), 0 7px 16px rgba(36,91,143,.14); transform: scale(.97); }
+    .tile.selected .fruit-glass { transform: scale(1.04); }
+    .tile.hint { border-color: rgba(255,159,10,.76); background: linear-gradient(145deg, rgba(255,255,255,.24), rgba(255,159,10,.13)); box-shadow: inset 0 1px 0 rgba(255,255,255,.78), 0 0 0 2px rgba(255,159,10,.20), 0 8px 17px rgba(149,96,27,.13); transform: translateY(-2px); }
+    .tile.hint .fruit-glass { transform: scale(1.04); filter: saturate(1.22) contrast(1.05) drop-shadow(0 3px 5px rgba(255,159,10,.18)); }
+    .tile.match-arrival::before { opacity: .98; }
+    .tile.match-arrival .fruit-glass { transform: scale(1.045); filter: saturate(1.18) contrast(1.04) drop-shadow(0 2px 4px rgba(54,128,190,.18)); }
+    .tile.removing { opacity: 0; filter: blur(1px); transform: scale(.965); pointer-events: none; transition-duration: 90ms; }
     .obstacle {
       min-height: 0;
       display: grid;
       place-items: center;
-      border: 2px solid rgba(77, 85, 101, .18);
-      border-radius: clamp(9px, 1.2vw, 15px);
-      background: linear-gradient(145deg, #dfe4ec, #aeb8c7);
-      box-shadow: inset 0 3px 7px rgba(255,255,255,.55), 0 5px 11px rgba(54,72,110,.13);
+      border: 1px solid rgba(74, 78, 87, .15);
+      border-radius: clamp(10px, 1.2vw, 16px);
+      background: linear-gradient(150deg, #e5e7ec, #b7bdc7);
+      box-shadow: inset 0 2px 4px rgba(255,255,255,.72), 0 5px 12px rgba(31,42,61,.11);
       font-size: clamp(24px, min(5.5vh, 4vw), 40px);
       user-select: none;
     }
     .toast {
       position: fixed;
-      left: 50%; bottom: 32px;
-      z-index: 10;
-      transform: translate(-50%, 16px);
+      left: 50%; bottom: max(28px, env(safe-area-inset-bottom));
+      z-index: 30;
+      transform: translate(-50%, 10px) scale(.97);
       padding: 11px 18px;
+      border: 1px solid rgba(255,255,255,.15);
       border-radius: 999px;
-      background: rgba(36, 50, 74, .92);
+      background: rgba(29, 29, 31, .84);
+      backdrop-filter: blur(18px) saturate(150%);
+      -webkit-backdrop-filter: blur(18px) saturate(150%);
       color: #fff;
+      box-shadow: 0 12px 30px rgba(0,0,0,.18);
       font-size: 14px;
+      font-weight: 560;
       opacity: 0;
       pointer-events: none;
-      transition: .22s ease;
+      transition: opacity 180ms ease, transform 220ms var(--ease-out);
     }
-    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .toast.show { opacity: 1; transform: translate(-50%, 0) scale(1); }
     .overlay {
-      position: fixed; inset: 0; z-index: 20;
-      display: none; place-items: center;
-      padding: 24px;
-      background: rgba(30, 42, 66, .35);
-      backdrop-filter: blur(7px);
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: grid;
+      place-items: center;
+      padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+      background: rgba(20, 27, 38, .28);
+      backdrop-filter: blur(0);
+      -webkit-backdrop-filter: blur(0);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 180ms ease, visibility 0s linear 180ms, backdrop-filter 240ms var(--ease-out);
     }
-    .overlay.show { display: grid; }
-    .dialog { width: min(420px, 100%); text-align: center; background: #fff; border-radius: 28px; padding: 34px; box-shadow: var(--shadow); animation: pop .28s ease; }
-    .dialog .emoji { font-size: 62px; }
-    .dialog h2 { margin: 12px 0 6px; font-size: 30px; }
-    .dialog p { color: var(--muted); margin: 0 0 22px; line-height: 1.8; }
+    .overlay.show { opacity: 1; visibility: visible; pointer-events: auto; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition-delay: 0s; }
+    .dialog {
+      width: min(420px, 100%);
+      max-height: 100%;
+      overflow: auto;
+      text-align: center;
+      background: rgba(255,255,255,.64);
+      border: 1px solid rgba(255,255,255,.72);
+      border-radius: 28px;
+      padding: 32px;
+      box-shadow: 0 28px 90px rgba(10,18,30,.24), 0 2px 10px rgba(10,18,30,.08);
+      transform: scale(.96) translateY(8px);
+      opacity: 0;
+      transition: transform 260ms var(--ease-out), opacity 180ms ease;
+    }
+    .overlay.show .dialog { transform: scale(1) translateY(0); opacity: 1; }
+    .dialog .emoji { font-size: 58px; line-height: 1; }
+    .dialog h2 { margin: 14px 0 8px; font-size: 29px; line-height: 1.1; letter-spacing: -.035em; }
+    .dialog p { color: var(--muted); margin: 0 0 20px; line-height: 1.65; }
+    .dialog p:empty { display: none; }
     .dialog .action { width: 100%; }
-    .levels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin: 0 0 18px; }
-    .level-btn {
-      padding: 12px 6px;
-      border: 2px solid #e7ebf4;
-      border-radius: 14px;
-      color: var(--ink);
-      background: #f7f9fe;
-      font-weight: 700;
+    .levels {
+      position: relative;
+      isolation: isolate;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 0 0 18px;
+      padding: 4px;
+      border-radius: 18px;
+      background: rgba(228,232,239,.66);
+      border: 1px solid rgba(255,255,255,.58);
+      box-shadow: inset 0 1px 1px rgba(255,255,255,.72), inset 0 -1px 2px rgba(74,91,115,.09);
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
     }
-    .level-btn.selected { border-color: var(--blue); color: var(--blue-dark); background: #eaf0ff; box-shadow: 0 7px 16px rgba(79, 124, 255, .16); }
-    @keyframes pop { from { opacity: 0; transform: scale(.82); } }
-    @keyframes vanish { to { opacity: 0; transform: scale(.35) rotate(8deg); } }
-    @keyframes hint { to { transform: translateY(-4px) scale(1.04); box-shadow: 0 10px 22px rgba(255, 173, 61, .35); } }
+    .level-liquid {
+      --liquid-stretch: 1;
+      --liquid-squeeze: 1;
+      --liquid-skew: 0deg;
+      position: absolute;
+      z-index: 1;
+      top: 4px;
+      left: 4px;
+      height: calc(100% - 8px);
+      width: calc((100% - 24px) / 3);
+      border-radius: 14px;
+      pointer-events: none;
+      transform: translate3d(var(--liquid-x, 0px),0,0) scaleX(var(--liquid-stretch)) scaleY(var(--liquid-squeeze)) skewX(var(--liquid-skew));
+      transform-origin: var(--liquid-origin, 50%) 50%;
+      will-change: transform;
+      background:
+        radial-gradient(120% 100% at var(--liquid-glint, 35%) 5%, rgba(255,255,255,.98) 0%, rgba(255,255,255,.42) 28%, transparent 56%),
+        linear-gradient(150deg, rgba(255,255,255,.72), rgba(244,249,255,.33) 52%, rgba(205,223,245,.28));
+      border: 1px solid rgba(255,255,255,.92);
+      box-shadow:
+        inset 0 1.5px 1px rgba(255,255,255,.98),
+        inset 0 -1.5px 2px rgba(83,110,145,.16),
+        inset 1.5px 0 2px rgba(90,173,255,.12),
+        0 7px 18px rgba(45,65,92,.16),
+        0 1px 2px rgba(45,65,92,.10);
+      backdrop-filter: blur(18px) saturate(190%) contrast(108%);
+      -webkit-backdrop-filter: blur(18px) saturate(190%) contrast(108%);
+    }
+    .level-liquid::before {
+      content: "";
+      position: absolute;
+      inset: 2px 7px auto 7px;
+      height: 42%;
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(255,255,255,.88), rgba(255,255,255,0));
+      filter: blur(.4px);
+      opacity: .76;
+    }
+    .level-liquid::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background:
+        radial-gradient(circle at 12% 52%, rgba(55,153,255,.20), transparent 28%),
+        radial-gradient(circle at 88% 48%, rgba(255,147,96,.14), transparent 27%);
+      mix-blend-mode: screen;
+    }
+    .levels.dragging .level-liquid {
+      box-shadow:
+        inset 0 1.5px 1px rgba(255,255,255,1),
+        inset 0 -2px 3px rgba(73,103,143,.18),
+        inset 2px 0 3px rgba(78,170,255,.18),
+        0 10px 24px rgba(45,65,92,.20),
+        0 1px 2px rgba(45,65,92,.10);
+    }
+    .level-btn {
+      position: relative;
+      z-index: 2;
+      min-height: 44px;
+      padding: 9px 6px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      color: var(--muted);
+      background: transparent;
+      font-weight: 650;
+      box-shadow: none;
+      transition: color 160ms ease, transform 100ms ease-out;
+    }
+    .level-btn:active { transform: scale(.97); }
+    .level-btn.selected { color: var(--ink); background: transparent; box-shadow: none; }
+    .liquid-glass {
+      --glass-x: 50%;
+      --glass-y: 18%;
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at var(--glass-x) var(--glass-y), rgba(255,255,255,.78) 0, rgba(255,255,255,.18) 25%, transparent 52%),
+        linear-gradient(145deg, rgba(255,255,255,.58), rgba(255,255,255,.22));
+      border: 1px solid rgba(255,255,255,.72);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.88),
+        inset 0 -1px 0 rgba(83,103,129,.10),
+        0 8px 24px rgba(31,42,61,.12);
+      backdrop-filter: blur(26px) saturate(190%) contrast(106%);
+      -webkit-backdrop-filter: blur(26px) saturate(190%) contrast(106%);
+    }
+    .liquid-glass::before {
+      content: "";
+      position: absolute;
+      inset: -35%;
+      z-index: 0;
+      border-radius: 45%;
+      background:
+        radial-gradient(circle at var(--glass-x) var(--glass-y), rgba(255,255,255,.82), transparent 24%),
+        conic-gradient(from 210deg at 50% 50%, rgba(96,169,255,.10), rgba(255,255,255,.34), rgba(255,178,104,.12), rgba(255,255,255,.18), rgba(96,169,255,.10));
+      opacity: .72;
+      transform: translateZ(0) scale(1.02);
+      transition: opacity 180ms ease;
+      pointer-events: none;
+    }
+    .liquid-glass::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      border-radius: inherit;
+      box-shadow: inset 1px 1px 0 rgba(255,255,255,.72), inset -1px -1px 0 rgba(73,91,114,.10);
+      pointer-events: none;
+    }
+    .liquid-glass > * { position: relative; z-index: 1; }
+    .best.liquid-glass { box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 6px 18px rgba(31,42,61,.09); }
+    .dialog.liquid-glass { overflow: hidden; background: rgba(255,255,255,.52); scrollbar-width: none; }
+    .dialog.liquid-glass::-webkit-scrollbar { display: none; }
+    .dialog.liquid-glass::before { inset: 0; border-radius: inherit; transform: none; opacity: .54; }
+    @media (hover: hover) and (pointer: fine) {
+      .action:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(0,122,255,.29); }
+      .action.secondary:hover { box-shadow: inset 0 0 0 1px rgba(60,60,67,.08), 0 5px 12px rgba(31,42,61,.08); }
+      .tile:hover { transform: translateY(-2px); box-shadow: inset 0 1px 0 rgba(255,255,255,.82), inset 0 -1px 0 rgba(57,88,121,.12), 0 9px 20px rgba(42,67,94,.14); }
+      .tile:hover::before { opacity: .92; }
+      .tile.selected:hover { transform: scale(.97); }
+    }
     @media (max-width: 760px) {
       body {
         padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
         align-items: start;
       }
-      header { align-items: center; }
+      header { align-items: center; padding: 0 2px; }
       .brand h1 { font-size: clamp(28px, 9vw, 40px); }
       .brand p { display: none; }
-      .panel { border-radius: 20px; padding: 11px; }
-      .status { grid-template-columns: repeat(4, 1fr); }
+      .panel { border-radius: 22px; padding: 11px; backdrop-filter: blur(10px) saturate(130%); -webkit-backdrop-filter: blur(10px) saturate(130%); }
+      .status { grid-template-columns: repeat(4, minmax(0, 1fr)); }
       .controls { grid-column: 1 / -1; }
       .action { flex: 1; min-height: 44px; padding: 0 10px; font-size: 14px; }
       .stat { padding: 7px 9px; }
       .stat strong { font-size: 16px; }
       #board { gap: clamp(4px, 1.3vw, 7px); }
-      .tile { border-radius: 11px; font-size: clamp(26px, min(6vh, 9.5vw), 44px); }
+      .tile { border-radius: 12px; font-size: clamp(26px, min(6vh, 9.5vw), 44px); }
+      .fruit-glyph { transform: translate3d(0, -.035em, 0); }
+      .dialog { padding: 28px 22px 22px; border-radius: 26px; }
     }
     @media (max-width: 420px) {
       header { margin-bottom: 10px; }
       .best { font-size: 12px; }
       .best strong { font-size: 17px; }
       .status { gap: 6px; margin-bottom: 12px; }
-      .stat { padding: 6px; text-align: center; border-radius: 11px; }
+      .stat { padding: 6px 4px; text-align: center; border-radius: 12px; }
       .stat span { font-size: 10px; }
       .stat strong { font-size: 15px; }
       .controls { gap: 6px; }
@@ -213,6 +513,25 @@
       .panel { padding-top: 8px; padding-bottom: 8px; }
       .status { margin-bottom: 8px; }
       .progress { height: 6px; margin-bottom: 8px; }
+      .dialog { padding-top: 20px; padding-bottom: 18px; }
+      .dialog .emoji { font-size: 44px; }
+      .dialog h2 { margin-top: 8px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; }
+      button, .tile, .toast, .overlay, .dialog { transition-duration: 1ms !important; }
+      .tile.hint { transform: none; }
+    }
+    @media (prefers-reduced-transparency: reduce) {
+      .panel, .dialog, .liquid-glass { background: #fff; backdrop-filter: none; -webkit-backdrop-filter: none; }
+      .tile { background: #f5f7fa; backdrop-filter: none; -webkit-backdrop-filter: none; }
+      .liquid-glass::before { display: none; }
+      .fruit-glass { background: none; filter: none; }
+      .toast { background: #1d1d1f; backdrop-filter: none; -webkit-backdrop-filter: none; }
+    }
+    @media (prefers-contrast: more) {
+      .panel, .dialog, .tile, .stat { border-color: rgba(0,0,0,.38); }
+      .muted, .brand p, .best, .stat span, .dialog p { color: #3a3a3c; }
     }
   </style>
 </head>
@@ -220,7 +539,7 @@
   <main class="app">
     <header>
       <div class="brand"><h1>果冻连连看</h1><p>连接相同图案 · 路线最多转弯两次</p></div>
-      <div class="best">最高分 <strong id="best">0</strong></div>
+      <div class="best liquid-glass">最高分 <strong id="best">0</strong></div>
     </header>
     <section class="panel">
       <div class="status">
@@ -228,7 +547,7 @@
         <div class="stat"><span>剩余</span><strong id="left">80</strong></div>
         <div class="stat"><span>时间</span><strong id="time">03:00</strong></div>
         <div class="stat"><span>连击</span><strong id="combo">×0</strong></div>
-        <div class="controls">
+        <div class="controls liquid-glass">
           <button class="action secondary" id="hintBtn" type="button">提示 3</button>
           <button class="action secondary" id="shuffleBtn" type="button">洗牌 3</button>
           <button class="action" id="restartBtn" type="button">新游戏</button>
@@ -243,11 +562,12 @@
   </main>
   <div class="toast" id="toast" role="status"></div>
   <div class="overlay" id="overlay">
-    <div class="dialog">
+    <div class="dialog liquid-glass">
       <div class="emoji" id="resultEmoji">🎉</div>
       <h2 id="resultTitle">全部消除！</h2>
       <p id="resultText"></p>
       <div class="levels" id="levels" aria-label="选择难度">
+        <span class="level-liquid" id="levelLiquid" aria-hidden="true"></span>
         <button class="level-btn" type="button" data-level="easy">轻松</button>
         <button class="level-btn selected" type="button" data-level="normal">标准</button>
         <button class="level-btn" type="button" data-level="hard">挑战</button>
@@ -265,7 +585,204 @@
       const canvas = document.getElementById('pathCanvas');
       const ctx = canvas.getContext('2d');
       const $ = id => document.getElementById(id);
-      let grid, selected, score, combo, lastMatchAt, remainingTime, hints, shuffles, timer, locked, gameOver;
+      let grid, selected, score, combo, lastMatchAt, remainingTime, hints, shuffles, timer, locked, gameOver, pathAnimation = 0;
+      let refractionFrame = 0;
+
+      function makeTileRefractionFilter(width, height) {
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+          <defs>
+            <filter id="liquidTile" x="-12%" y="-12%" width="124%" height="124%" color-interpolation-filters="sRGB">
+              <feTurbulence type="fractalNoise" baseFrequency="0.018 0.043" numOctaves="2" seed="11" result="noise"/>
+              <feGaussianBlur in="noise" stdDeviation="0.55" result="softNoise"/>
+              <feDisplacementMap in="SourceGraphic" in2="softNoise" scale="8.4" xChannelSelector="R" yChannelSelector="G" result="redShift"/>
+              <feColorMatrix in="redShift" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="red"/>
+              <feDisplacementMap in="SourceGraphic" in2="softNoise" scale="7.3" xChannelSelector="R" yChannelSelector="G" result="greenShift"/>
+              <feColorMatrix in="greenShift" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="green"/>
+              <feDisplacementMap in="SourceGraphic" in2="softNoise" scale="6.2" xChannelSelector="R" yChannelSelector="G" result="blueShift"/>
+              <feColorMatrix in="blueShift" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="blue"/>
+              <feBlend in="red" in2="green" mode="screen" result="rg"/>
+              <feBlend in="rg" in2="blue" mode="screen"/>
+            </filter>
+          </defs>
+        </svg>`;
+        return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}#liquidTile`;
+      }
+
+      function refreshTileRefraction() {
+        cancelAnimationFrame(refractionFrame);
+        refractionFrame = requestAnimationFrame(() => {
+          const tile = boardEl.querySelector('.tile');
+          if (!tile) return;
+          const rect = tile.getBoundingClientRect();
+          const width = Math.max(1, Math.round(rect.width));
+          const height = Math.max(1, Math.round(rect.height));
+          const filterUrl = makeTileRefractionFilter(width, height);
+          boardEl.style.setProperty('--tile-refraction', `blur(1.5px) url("${filterUrl}") blur(.45px) saturate(1.48) brightness(1.04)`);
+        });
+      }
+
+      function enableLiquidHighlight(surface) {
+        if (surface.dataset.glassReady) return;
+        surface.dataset.glassReady = 'true';
+        let frame = 0;
+        const moveHighlight = event => {
+          cancelAnimationFrame(frame);
+          frame = requestAnimationFrame(() => {
+            const rect = surface.getBoundingClientRect();
+            const x = Math.max(0, Math.min(100, (event.clientX - rect.left) / rect.width * 100));
+            const y = Math.max(0, Math.min(100, (event.clientY - rect.top) / rect.height * 100));
+            surface.style.setProperty('--glass-x', x + '%');
+            surface.style.setProperty('--glass-y', y + '%');
+          });
+        };
+        surface.addEventListener('pointermove', moveHighlight, { passive: true });
+        surface.addEventListener('pointerdown', moveHighlight, { passive: true });
+        const resetHighlight = () => {
+          surface.style.setProperty('--glass-x', '50%');
+          surface.style.setProperty('--glass-y', '18%');
+        };
+        surface.addEventListener('pointerleave', resetHighlight);
+        surface.addEventListener('pointercancel', resetHighlight);
+        surface.addEventListener('pointerup', () => setTimeout(resetHighlight, 180), { passive: true });
+      }
+
+      const levelsEl = $('levels');
+      const levelLiquid = $('levelLiquid');
+      const levelButtons = [...document.querySelectorAll('.level-btn')];
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      let liquidX = 0, liquidTarget = 0, liquidVelocity = 0, liquidFrame = 0, liquidLastTime = 0;
+      let levelDrag = null, suppressLevelClick = false;
+
+      function levelMetrics() {
+        const positions = levelButtons.map(button => button.offsetLeft - 4);
+        return { positions, min: positions[0], max: positions[positions.length - 1], width: levelButtons[0].offsetWidth };
+      }
+
+      function renderLevelLiquid(x, velocity = 0, dragging = false) {
+        const speed = Math.min(1, Math.abs(velocity) / 14);
+        const direction = Math.sign(velocity) || 1;
+        const stretch = 1 + speed * (dragging ? .17 : .105);
+        const squeeze = 1 - speed * (dragging ? .075 : .042);
+        levelLiquid.style.setProperty('--liquid-x', x.toFixed(2) + 'px');
+        levelLiquid.style.setProperty('--liquid-stretch', stretch.toFixed(3));
+        levelLiquid.style.setProperty('--liquid-squeeze', squeeze.toFixed(3));
+        levelLiquid.style.setProperty('--liquid-skew', (direction * speed * -2.2).toFixed(2) + 'deg');
+        levelLiquid.style.setProperty('--liquid-origin', direction > 0 ? '0%' : '100%');
+        levelLiquid.style.setProperty('--liquid-glint', direction > 0 ? '72%' : '28%');
+        levelLiquid.style.setProperty('--liquid-radius', (14 - speed * 2.6).toFixed(2) + 'px');
+      }
+
+      function settleLevelLiquid() {
+        cancelAnimationFrame(liquidFrame);
+        if (reduceMotion.matches) {
+          liquidX = liquidTarget; liquidVelocity = 0;
+          renderLevelLiquid(liquidX);
+          return;
+        }
+        liquidLastTime = performance.now();
+        const tick = now => {
+          const deltaTime = Math.min(.032, Math.max(.001, (now - liquidLastTime) / 1000));
+          liquidLastTime = now;
+          liquidVelocity += ((liquidTarget - liquidX) * 210 - liquidVelocity * 29) * deltaTime;
+          liquidX += liquidVelocity * deltaTime;
+          renderLevelLiquid(liquidX, liquidVelocity / 60, false);
+          if (Math.abs(liquidTarget - liquidX) < .08 && Math.abs(liquidVelocity) < 4) {
+            liquidX = liquidTarget; liquidVelocity = 0;
+            renderLevelLiquid(liquidX);
+            liquidFrame = 0;
+            return;
+          }
+          liquidFrame = requestAnimationFrame(tick);
+        };
+        liquidFrame = requestAnimationFrame(tick);
+      }
+
+      function selectDifficulty(level, animate = true, releaseVelocity = 0) {
+        const index = Math.max(0, levelButtons.findIndex(button => button.dataset.level === level));
+        difficulty = levelButtons[index].dataset.level;
+        levelButtons.forEach((button, buttonIndex) => {
+          const selected = buttonIndex === index;
+          button.classList.toggle('selected', selected);
+          button.setAttribute('aria-pressed', String(selected));
+        });
+        const metrics = levelMetrics();
+        levelLiquid.style.width = metrics.width + 'px';
+        liquidTarget = metrics.positions[index];
+        if (!animate || !levelLiquid.offsetWidth) {
+          cancelAnimationFrame(liquidFrame);
+          liquidX = liquidTarget; liquidVelocity = 0;
+          renderLevelLiquid(liquidX);
+        } else {
+          liquidVelocity = releaseVelocity * 60;
+          settleLevelLiquid();
+        }
+      }
+
+      levelsEl.addEventListener('pointerdown', event => {
+        if (event.button !== undefined && event.button !== 0) return;
+        cancelAnimationFrame(liquidFrame);
+        levelDrag = {
+          id: event.pointerId,
+          tapLevel: event.target.closest('.level-btn')?.dataset.level || difficulty,
+          startPointer: event.clientX,
+          startX: liquidX,
+          lastPointer: event.clientX,
+          lastTime: event.timeStamp,
+          velocity: 0,
+          moved: false
+        };
+        levelsEl.setPointerCapture(event.pointerId);
+      });
+
+      levelsEl.addEventListener('pointermove', event => {
+        if (!levelDrag || levelDrag.id !== event.pointerId) return;
+        const delta = event.clientX - levelDrag.startPointer;
+        if (!levelDrag.moved && Math.abs(delta) < 4) return;
+        levelDrag.moved = true;
+        levelsEl.classList.add('dragging');
+        const metrics = levelMetrics();
+        let next = levelDrag.startX + delta;
+        if (next < metrics.min) next = metrics.min + (next - metrics.min) * .18;
+        if (next > metrics.max) next = metrics.max + (next - metrics.max) * .18;
+        const elapsed = Math.max(8, event.timeStamp - levelDrag.lastTime);
+        levelDrag.velocity = (event.clientX - levelDrag.lastPointer) / elapsed * 16;
+        levelDrag.lastPointer = event.clientX;
+        levelDrag.lastTime = event.timeStamp;
+        liquidX = next;
+        renderLevelLiquid(liquidX, levelDrag.velocity, true);
+        event.preventDefault();
+      });
+
+      function endLevelDrag(event) {
+        if (!levelDrag || levelDrag.id !== event.pointerId) return;
+        const drag = levelDrag;
+        levelDrag = null;
+        levelsEl.classList.remove('dragging');
+        if (!drag.moved) {
+          suppressLevelClick = true;
+          selectDifficulty(drag.tapLevel, true);
+          setTimeout(() => { suppressLevelClick = false; }, 0);
+          return;
+        }
+        suppressLevelClick = true;
+        setTimeout(() => { suppressLevelClick = false; }, 0);
+        const metrics = levelMetrics();
+        const projected = Math.max(metrics.min, Math.min(metrics.max, liquidX + drag.velocity * 4.5));
+        let nearest = 0;
+        metrics.positions.forEach((position, index) => {
+          if (Math.abs(position - projected) < Math.abs(metrics.positions[nearest] - projected)) nearest = index;
+        });
+        selectDifficulty(levelButtons[nearest].dataset.level, true, drag.velocity);
+      }
+
+      levelsEl.addEventListener('pointerup', endLevelDrag);
+      levelsEl.addEventListener('pointercancel', event => {
+        if (!levelDrag || levelDrag.id !== event.pointerId) return;
+        const current = difficulty;
+        levelDrag = null;
+        levelsEl.classList.remove('dragging');
+        selectDifficulty(current, true);
+      });
 
       function configureBoardSize() {
         const width = Math.min(window.innerWidth, document.documentElement.clientWidth || window.innerWidth);
@@ -350,11 +867,17 @@
             rock.setAttribute('role', 'img'); rock.setAttribute('aria-label', '岩石障碍'); boardEl.appendChild(rock); continue;
           }
           const b = document.createElement('button');
-          b.type = 'button'; b.className = 'tile'; b.textContent = value;
+          const fruit = document.createElement('span');
+          const glyph = document.createElement('span');
+          fruit.className = 'fruit-glass'; glyph.className = 'fruit-glyph'; glyph.textContent = value;
+          fruit.appendChild(glyph); b.appendChild(fruit);
+          b.type = 'button'; b.className = 'tile';
           b.dataset.r = r; b.dataset.c = c; b.setAttribute('aria-label', value);
           b.addEventListener('click', () => choose(r, c, b));
+          enableLiquidHighlight(b);
           boardEl.appendChild(b);
         }
+        refreshTileRefraction();
         updateStats();
       }
 
@@ -406,38 +929,168 @@
           first.el.classList.remove('selected'); selected = {r,c,el}; el.classList.add('selected');
           combo = 0; updateStats(); return;
         }
-        locked = true; el.classList.add('selected'); drawPath(path);
+        locked = true; el.classList.add('selected');
+        const effectDuration = drawPath(path, () => {
+          first.el.classList.add('match-arrival'); el.classList.add('match-arrival');
+          setTimeout(() => { first.el.classList.add('removing'); el.classList.add('removing'); }, 24);
+        });
         const now = Date.now(); combo = now - lastMatchAt < 3000 ? combo + 1 : 1; lastMatchAt = now;
         score += 100 + Math.min(combo - 1, 9) * 20 + Math.ceil(remainingTime / 30) * 5;
-        first.el.classList.add('removing'); el.classList.add('removing');
         setTimeout(() => {
           grid[first.r][first.c] = null; grid[r][c] = null; selected = null; locked = false; clearCanvas();
           clearCell(first.el); clearCell(el); updateStats();
           if (countLeft() === 0) finish(true);
           else if (!findPair()) { shuffleRemaining(false); render(); toast('没有可连接的对子，已自动洗牌'); }
-        }, 300);
+        }, effectDuration);
       }
 
       function clearCell(el) {
         const gap = document.createElement('div'); gap.className = 'empty'; el.replaceWith(gap);
       }
 
-      function drawPath(path) {
+      function drawPath(path, onArrive) {
         resizeCanvas();
         const boardRect = boardEl.getBoundingClientRect();
-        const tile = boardEl.querySelector('.tile'); if (!tile) return;
+        const tile = boardEl.querySelector('.tile'); if (!tile) return 0;
         const rect = tile.getBoundingClientRect(), gapX = (boardRect.width - rect.width * COLS) / (COLS - 1);
         const gapY = (boardRect.height - rect.height * ROWS) / (ROWS - 1);
         const pos = p => ({
           x: p.c === 0 ? 3 : p.c === COLS + 1 ? boardRect.width - 3 : (p.c - 1) * (rect.width + gapX) + rect.width / 2,
           y: p.r === 0 ? 3 : p.r === ROWS + 1 ? boardRect.height - 3 : (p.r - 1) * (rect.height + gapY) + rect.height / 2
         });
-        ctx.clearRect(0,0,canvas.width,canvas.height); ctx.beginPath();
-        path.map(pos).forEach((p,i) => i ? ctx.lineTo(p.x * devicePixelRatio, p.y * devicePixelRatio) : ctx.moveTo(p.x * devicePixelRatio,p.y * devicePixelRatio));
-        ctx.strokeStyle = '#4f7cff'; ctx.lineWidth = 5 * devicePixelRatio; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.stroke();
+        const points = path.map(pos).map(p => ({ x: p.x * devicePixelRatio, y: p.y * devicePixelRatio }));
+        let walked = 0;
+        const segments = points.slice(1).map((point, index) => {
+          const start = points[index];
+          const length = Math.hypot(point.x - start.x, point.y - start.y);
+          const segment = { start, end: point, length, from: walked, to: walked + length };
+          walked += length;
+          return segment;
+        });
+        const totalLength = walked;
+        const px = devicePixelRatio;
+        cancelAnimationFrame(pathAnimation);
+
+        const pointOn = (segment, distance) => {
+          const ratio = segment.length ? (distance - segment.from) / segment.length : 1;
+          return { x: segment.start.x + (segment.end.x - segment.start.x) * ratio, y: segment.start.y + (segment.end.y - segment.start.y) * ratio };
+        };
+
+        const traceRange = (from, to) => {
+          ctx.beginPath();
+          let began = false;
+          for (const segment of segments) {
+            const startDistance = Math.max(from, segment.from);
+            const endDistance = Math.min(to, segment.to);
+            if (endDistance <= startDistance) continue;
+            const startPoint = pointOn(segment, startDistance);
+            const endPoint = pointOn(segment, endDistance);
+            if (!began) { ctx.moveTo(startPoint.x, startPoint.y); began = true; }
+            else ctx.lineTo(startPoint.x, startPoint.y);
+            ctx.lineTo(endPoint.x, endPoint.y);
+          }
+          return began;
+        };
+
+        const strokeRange = (from, to, style, width, offsetX = 0, offsetY = 0, alpha = 1) => {
+          if (to <= from) return;
+          ctx.save();
+          ctx.translate(offsetX, offsetY);
+          if (traceRange(from, to)) {
+            ctx.strokeStyle = style;
+            ctx.lineWidth = width;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.globalAlpha = alpha;
+            ctx.stroke();
+          }
+          ctx.restore();
+        };
+
+        const drawLens = (point, radius, alpha) => {
+          if (alpha <= 0) return;
+          const lens = ctx.createRadialGradient(point.x, point.y, 0, point.x, point.y, radius);
+          lens.addColorStop(0, `rgba(255,255,255,${.92 * alpha})`);
+          lens.addColorStop(.28, `rgba(190,239,255,${.48 * alpha})`);
+          lens.addColorStop(.66, `rgba(100,198,255,${.18 * alpha})`);
+          lens.addColorStop(1, 'rgba(100,198,255,0)');
+          ctx.beginPath(); ctx.arc(point.x, point.y, radius, 0, Math.PI * 2); ctx.fillStyle = lens; ctx.fill();
+        };
+
+        const paint = ({ visibleStart = 0, visibleEnd = 0, charge = 0, arrival = 0, drawing = false }) => {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.save();
+          const lineAlpha = 1 - arrival * .36;
+          strokeRange(visibleStart, visibleEnd, 'rgba(68,205,255,.30)', 2.75 * px, .45 * px, .18 * px, lineAlpha);
+          strokeRange(visibleStart, visibleEnd, 'rgba(184,137,255,.16)', 2.55 * px, -.45 * px, -.16 * px, lineAlpha);
+          const glassGradient = ctx.createLinearGradient(points[0].x, points[0].y, points.at(-1).x, points.at(-1).y);
+          glassGradient.addColorStop(0, 'rgba(154,224,255,.66)');
+          glassGradient.addColorStop(.52, 'rgba(225,248,255,.72)');
+          glassGradient.addColorStop(1, 'rgba(164,224,255,.68)');
+          strokeRange(visibleStart, visibleEnd, glassGradient, 2.05 * px, 0, 0, lineAlpha);
+          strokeRange(visibleStart, visibleEnd, 'rgba(255,255,255,.88)', .72 * px, 0, 0, lineAlpha);
+
+          const tailStart = Math.max(visibleStart, visibleEnd - 16 * px);
+          strokeRange(tailStart, visibleEnd, 'rgba(255,255,255,.96)', 1.08 * px, 0, 0, drawing ? .92 : 0);
+
+          if (drawing && visibleEnd > 0) {
+            const headSegment = segments.find(segment => visibleEnd <= segment.to) || segments.at(-1);
+            const head = pointOn(headSegment, Math.min(visibleEnd, totalLength));
+            drawLens(head, 4.4 * px, .82);
+          }
+
+          segments.slice(0, -1).forEach(segment => {
+            const distancePastCorner = visibleEnd - segment.to;
+            const cornerAlpha = drawing && distancePastCorner >= 0 ? Math.max(0, 1 - distancePastCorner / (22 * px)) : 0;
+            drawLens(segment.end, 3.6 * px, cornerAlpha * .55);
+          });
+
+          if (charge > 0) {
+            const radius = (2.4 + charge * 2.2) * px;
+            drawLens(points[0], radius, .72 * (1 - charge * .42));
+          }
+          if (arrival > 0) {
+            drawLens(points.at(-1), (2.8 + arrival * 4.2) * px, .72 * (1 - arrival));
+          }
+          ctx.restore();
+        };
+
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches || totalLength === 0) {
+          paint({ visibleEnd: totalLength });
+          onArrive?.();
+          setTimeout(clearCanvas, 110);
+          return 125;
+        }
+
+        const chargeDuration = 24;
+        const drawDuration = Math.max(145, Math.min(185, (totalLength / px) * .46));
+        const dissolveDuration = 112;
+        const arrivalAt = chargeDuration + drawDuration;
+        const totalDuration = arrivalAt + dissolveDuration;
+        const startedAt = performance.now();
+        let arrived = false;
+        const animate = now => {
+          const elapsed = now - startedAt;
+          if (elapsed < chargeDuration) {
+            paint({ charge: Math.max(0, elapsed / chargeDuration) });
+          } else if (elapsed < arrivalAt) {
+            const raw = (elapsed - chargeDuration) / drawDuration;
+            const eased = 1 - Math.pow(1 - raw, 3);
+            paint({ visibleEnd: totalLength * eased, drawing: true });
+          } else {
+            if (!arrived) { arrived = true; onArrive?.(); }
+            const dissolve = Math.min(1, (elapsed - arrivalAt) / dissolveDuration);
+            const eased = dissolve * dissolve * (3 - 2 * dissolve);
+            paint({ visibleStart: totalLength * eased, visibleEnd: totalLength, arrival: dissolve });
+          }
+          if (elapsed < totalDuration) pathAnimation = requestAnimationFrame(animate);
+          else clearCanvas();
+        };
+        pathAnimation = requestAnimationFrame(animate);
+        return Math.ceil(totalDuration + 8);
       }
       function resizeCanvas() { const r = boardEl.getBoundingClientRect(); canvas.width = r.width * devicePixelRatio; canvas.height = r.height * devicePixelRatio; }
-      function clearCanvas() { ctx.clearRect(0,0,canvas.width,canvas.height); }
+      function clearCanvas() { cancelAnimationFrame(pathAnimation); pathAnimation = 0; ctx.clearRect(0,0,canvas.width,canvas.height); }
       function countLeft() { let n=0; for(let r=1;r<=ROWS;r++) for(let c=1;c<=COLS;c++) if(grid[r][c] && grid[r][c] !== OBSTACLE) n++; return n; }
 
       function shuffleRemaining(cost = true) {
@@ -483,8 +1136,9 @@
       function showMenu() {
         clearInterval(timer); gameOver = true; locked = false; selected = null;
         $('resultEmoji').textContent = '🎮'; $('resultTitle').textContent = '选择难度';
-        $('resultText').textContent = '选好难度后，点击开始游戏才会计时。';
+        $('resultText').textContent = '';
         $('againBtn').textContent = '开始游戏'; $('overlay').classList.add('show');
+        requestAnimationFrame(() => selectDifficulty(difficulty, false));
       }
 
       function finish(win) {
@@ -494,19 +1148,22 @@
         $('resultText').innerHTML = `本局得分 <strong>${score}</strong><br>${score === best && score > 0 ? '恭喜刷新最高分！' : '再试一次，冲击更高分吧。'}`;
         $('againBtn').textContent = '再来一局';
         $('overlay').classList.add('show');
+        requestAnimationFrame(() => selectDifficulty(difficulty, false));
       }
       let toastTimer;
       function toast(msg) { clearTimeout(toastTimer); $('toast').textContent=msg; $('toast').classList.add('show'); toastTimer=setTimeout(()=>$('toast').classList.remove('show'),1800); }
+
+      document.querySelectorAll('.liquid-glass').forEach(enableLiquidHighlight);
 
       $('hintBtn').addEventListener('click', showHint);
       $('shuffleBtn').addEventListener('click', () => shuffleRemaining(true));
       $('restartBtn').addEventListener('click', showMenu);
       $('againBtn').addEventListener('click', start);
-      document.querySelectorAll('.level-btn').forEach(btn => btn.addEventListener('click', () => {
-        difficulty = btn.dataset.level;
-        document.querySelectorAll('.level-btn').forEach(x => x.classList.toggle('selected', x === btn));
+      levelButtons.forEach(btn => btn.addEventListener('click', event => {
+        if (suppressLevelClick) { event.preventDefault(); return; }
+        selectDifficulty(btn.dataset.level, true);
       }));
-      window.addEventListener('resize', clearCanvas);
+      window.addEventListener('resize', () => { clearCanvas(); refreshTileRefraction(); selectDifficulty(difficulty, false); });
       showMenu();
     })();
   </script>
