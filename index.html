@@ -21,15 +21,15 @@
       --shadow: 0 24px 70px rgba(25, 35, 52, .14), 0 2px 10px rgba(25, 35, 52, .06);
     }
     * { box-sizing: border-box; }
-    html { background: #eef4fb; }
+    html { width: 100%; height: 100%; overflow: hidden; background: #eef4fb; }
     body {
       position: relative;
       isolation: isolate;
       margin: 0;
       height: 100vh;
       height: 100dvh;
-      min-height: 100vh;
-      min-height: 100dvh;
+      width: 100%;
+      min-height: 0;
       color: var(--ink);
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
       font-optical-sizing: auto;
@@ -49,6 +49,9 @@
       border-radius: 50%;
       pointer-events: none;
       will-change: transform;
+      contain: strict;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
     }
     body::before {
       width: 48vmax;
@@ -56,9 +59,8 @@
       left: -18vmax;
       top: -19vmax;
       background:
-        radial-gradient(circle at 60% 56%, rgba(255,151,67,.92), rgba(255,205,127,.44) 38%, transparent 72%);
-      box-shadow: 22vmax 15vmax 14vmax rgba(255,216,137,.18);
-      filter: blur(34px) saturate(142%);
+        radial-gradient(circle at 60% 56%, rgba(255,151,67,.88), rgba(255,205,127,.38) 38%, transparent 72%),
+        radial-gradient(circle at 92% 88%, rgba(255,225,167,.22), transparent 48%);
       opacity: .82;
       transform: translate3d(-3vmax, -2vmax, 0) scale(.94);
       animation: ambientWarmDrift 8.6s cubic-bezier(.45,0,.25,1) infinite alternate;
@@ -69,10 +71,9 @@
       right: -24vmax;
       bottom: -26vmax;
       background:
-        radial-gradient(circle at 42% 40%, rgba(41,126,255,.82), rgba(88,184,255,.34) 42%, transparent 70%),
-        radial-gradient(circle at 72% 25%, rgba(166,92,255,.34), transparent 46%);
-      box-shadow: -18vmax -13vmax 16vmax rgba(67,213,208,.16);
-      filter: blur(40px) saturate(150%);
+        radial-gradient(circle at 42% 40%, rgba(41,126,255,.78), rgba(88,184,255,.30) 42%, transparent 70%),
+        radial-gradient(circle at 72% 25%, rgba(166,92,255,.30), transparent 46%),
+        radial-gradient(circle at 12% 18%, rgba(67,213,208,.18), transparent 42%);
       opacity: .78;
       transform: translate3d(4vmax, 4vmax, 0) scale(1.02);
       animation: ambientCoolDrift 10.8s cubic-bezier(.45,0,.25,1) infinite alternate;
@@ -153,7 +154,7 @@
     .action {
       min-height: 44px;
       padding: 0 17px;
-      border-radius: var(--liquid-radius, 14px);
+      border-radius: 14px;
       color: #fff;
       background: var(--blue);
       box-shadow: 0 8px 20px rgba(0, 122, 255, .24);
@@ -176,14 +177,13 @@
         radial-gradient(ellipse 46% 38% at 86% 26%, rgba(102,173,255,.28), transparent 74%),
         radial-gradient(ellipse 50% 34% at 42% 82%, rgba(87,211,187,.20), transparent 72%),
         linear-gradient(142deg, rgba(255,255,255,.08), rgba(92,150,214,.12));
-      filter: blur(22px) saturate(145%);
       opacity: .86;
       transform: translate3d(-1.5%, -1%, 0) scale(1.03);
       animation: boardRefractionField 14s cubic-bezier(.45,0,.25,1) infinite alternate;
       pointer-events: none;
     }
     @keyframes boardRefractionField {
-      to { transform: translate3d(1.5%, 1%, 0) scale(1.055); filter: blur(25px) saturate(158%); }
+      to { transform: translate3d(1.5%, 1%, 0) scale(1.055); }
     }
     #board {
       position: relative;
@@ -268,7 +268,7 @@
     .tile.hint .fruit-glass { transform: scale(1.04); filter: saturate(1.22) contrast(1.05) drop-shadow(0 3px 5px rgba(255,159,10,.18)); }
     .tile.match-arrival::before { opacity: .98; }
     .tile.match-arrival .fruit-glass { transform: scale(1.045); filter: saturate(1.18) contrast(1.04) drop-shadow(0 2px 4px rgba(54,128,190,.18)); }
-    .tile.removing { opacity: 0; filter: blur(1px); transform: scale(.965); pointer-events: none; transition-duration: 90ms; }
+    .tile.removing { opacity: 0; transform: scale(.965); pointer-events: none; transition-duration: 90ms; }
     .obstacle {
       min-height: 0;
       display: grid;
@@ -362,7 +362,7 @@
       left: 4px;
       height: calc(100% - 8px);
       width: calc((100% - 24px) / 3);
-      border-radius: 14px;
+      border-radius: var(--liquid-radius, 14px);
       pointer-events: none;
       transform: translate3d(var(--liquid-x, 0px),0,0) scaleX(var(--liquid-stretch)) scaleY(var(--liquid-squeeze)) skewX(var(--liquid-skew));
       transform-origin: var(--liquid-origin, 50%) 50%;
@@ -477,13 +477,29 @@
     }
     @media (max-width: 760px) {
       body {
-        padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
-        align-items: start;
+        padding: max(4px, env(safe-area-inset-top)) max(4px, env(safe-area-inset-right)) max(4px, env(safe-area-inset-bottom)) max(4px, env(safe-area-inset-left));
+        place-items: stretch;
       }
-      header { align-items: center; padding: 0 2px; }
+      .app { width: 100%; max-width: none; height: 100%; }
+      header { align-items: center; padding: 2px 4px 0; margin-bottom: 8px; }
       .brand h1 { font-size: clamp(28px, 9vw, 40px); }
       .brand p { display: none; }
-      .panel { border-radius: 22px; padding: 11px; backdrop-filter: blur(10px) saturate(130%); -webkit-backdrop-filter: blur(10px) saturate(130%); }
+      .panel {
+        border-radius: 18px;
+        padding: 9px;
+        background: rgba(248,249,252,.965);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+      }
+      .board-wrap::before { inset: 0; opacity: .72; }
+      .tile {
+        background:
+          radial-gradient(circle at 28% 12%, rgba(255,255,255,.64), transparent 38%),
+          linear-gradient(145deg, rgba(255,255,255,.48), rgba(223,239,255,.22));
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+      }
+      .overlay, .overlay.show { backdrop-filter: none; -webkit-backdrop-filter: none; }
       .status { grid-template-columns: repeat(4, minmax(0, 1fr)); }
       .controls { grid-column: 1 / -1; }
       .action { flex: 1; min-height: 44px; padding: 0 10px; font-size: 14px; }
@@ -611,6 +627,10 @@
       function refreshTileRefraction() {
         cancelAnimationFrame(refractionFrame);
         refractionFrame = requestAnimationFrame(() => {
+          if (window.matchMedia('(max-width: 760px)').matches) {
+            boardEl.style.removeProperty('--tile-refraction');
+            return;
+          }
           const tile = boardEl.querySelector('.tile');
           if (!tile) return;
           const rect = tile.getBoundingClientRect();
